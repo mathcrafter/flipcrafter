@@ -1,0 +1,39 @@
+{
+    "name": "flipcrafter",
+    "version": "1.0.0",
+    "description": "Memory game using pickaxes and blocks",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "@next/third-parties": "^15.3.1",
+        "next": "^14.0.0",
+        "next-pwa": "^5.6.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-ga4": "^2.1.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.8.10",
+        "@types/react": "^18.2.33",
+        "@types/react-dom": "^18.2.14",
+        "eslint": "^8.52.0",
+        "eslint-config-next": "^14.0.0",
+        "typescript": "^5.0.0"
+    },
+    "keywords": [
+        "math",
+        "education",
+        "game",
+        "minecraft",
+        "typescript",
+        "nextjs",
+        "react"
+    ],
+    "author": "",
+    "license": "MIT"
+}
