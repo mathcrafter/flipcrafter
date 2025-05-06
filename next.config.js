@@ -16,6 +16,10 @@ const nextConfig = {
     // Get the repository name from environment or use empty string as fallback
     basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
     assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || '',
+    // Explicitly set the webpack configuration to support path aliases
+    webpack: (config) => {
+        return config;
+    }
 }
 
 module.exports = withPWA(nextConfig) 
