@@ -23,23 +23,23 @@ export const Card: React.FC<CardProps> = ({ card, onClick }) => {
         }
     };
 
-    // Get color based on rarity
+    // Get color based on rarity (academic style)
     const getRarityColor = () => {
         switch (card.rarity) {
             case 'Common':
-                return '#9e9e9e';
+                return '#607d8b'; // Blue Grey
             case 'Uncommon':
-                return '#4caf50';
+                return '#4caf50'; // Green
             case 'Rare':
-                return '#2196f3';
+                return '#2196f3'; // Blue
             case 'Epic':
-                return '#9c27b0';
+                return '#9c27b0'; // Purple
             case 'Legendary':
-                return '#ff9800';
+                return '#ff9800'; // Orange
             case 'Seasonal':
-                return '#e91e63';
+                return '#e91e63'; // Pink
             default:
-                return '#9e9e9e';
+                return '#607d8b'; // Blue Grey
         }
     };
 
@@ -51,19 +51,30 @@ export const Card: React.FC<CardProps> = ({ card, onClick }) => {
             .join(' ');
     };
 
+    // Sound effects
+    const playFlipSound = () => {
+        const audio = new Audio('/assets/sounds/click.mp3');
+        audio.volume = 0.5;
+        audio.play().catch(err => console.log('Audio play failed:', err));
+    };
+
+    const handleClick = () => {
+        if (!card.matched && !card.flipped) {
+            playFlipSound();
+            onClick();
+        }
+    };
+
     return (
         <div
             className={`card ${card.flipped ? 'flipped' : ''} ${card.matched ? 'matched' : ''}`}
-            onClick={onClick}
+            onClick={handleClick}
         >
             <div className="card-inner">
                 <div className="card-front">
-                    ?
+                    <div className="question-mark">?</div>
                 </div>
-                <div
-                    className="card-back"
-                    style={{ borderColor: getRarityColor(), borderWidth: '2px', borderStyle: 'solid' }}
-                >
+                <div className="card-back">
                     <img src={getImageSrc()} alt={card.name} />
                     <div
                         className="card-rarity"

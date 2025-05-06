@@ -3,8 +3,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-    title: 'FlipCrafter Memory Game',
-    description: 'Match pickaxes and blocks in this fun memory game',
+    title: 'FlipCrafter: Math Memory Game',
+    description: 'A mathematical memory card game for all ages.',
+    icons: {
+        icon: '/favicon.ico',
+    },
 };
 
 export default function RootLayout({
@@ -14,6 +17,11 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <meta name="theme-color" content="#2a7ae2" />
+                <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+            </head>
             <body>{children}</body>
         </html>
     );

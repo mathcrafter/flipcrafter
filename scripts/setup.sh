@@ -3,10 +3,15 @@
 # Use Node.js 22
 nvm use 22
 
-# Install dependencies using uv (for the scripts directory)
-cd scripts
-uv pip install -r requirements.txt
+# Install dependencies
+npm install
 
-# Install npm dependencies for the main project
-cd ..
-npm install 
+# Setup MathCrafter theme assets
+echo "Setting up MathCrafter theme assets..."
+node scripts/setup-mathcrafter-assets.js
+
+# Update theme colors
+echo "Setting up MathCrafter theme colors..."
+node scripts/update-mathcrafter-theme.js
+
+echo "Setup complete! Run 'npm run dev' to start the development server." 

@@ -4,21 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Card } from './Card';
 import { blockStore } from '@/stores/BlockStore';
 import { pickaxeStore } from '@/stores/PickaxeStore';
-
-// Define types for our game cards
-interface CardType {
-    id: number;
-    type: string; // 'pickaxe' or 'block'
-    name: string;
-    matched: boolean;
-    flipped: boolean;
-    rarity: string;
-}
-
-interface GridSize {
-    rows: number;
-    columns: number;
-}
+import { GameState, CardType, GridSize } from '@/models/GameState';
+import { saveGameState, loadGameState, GAME_STATE_KEY } from '@/controllers/GameController';
 
 const MemoryGame: React.FC = () => {
     const [cards, setCards] = useState<CardType[]>([]);
@@ -28,7 +15,7 @@ const MemoryGame: React.FC = () => {
     const [disabled, setDisabled] = useState(false);
     const [gameComplete, setGameComplete] = useState(false);
     const [matches, setMatches] = useState(0);
-    const [gridSize, setGridSize] = useState<GridSize>({ rows: 6, columns: 6 });
+    const [gridSize, setGridSize] = useState<GridSize>({ rows: 4, columns: 4 });
     const [showSettings, setShowSettings] = useState(false);
 
     // Initialize game
@@ -40,13 +27,41 @@ const MemoryGame: React.FC = () => {
     useEffect(() => {
         if (matches === cards.length / 2 && cards.length > 0) {
             setGameComplete(true);
+            // Save when game is complete
+            saveGameState(cards, moves, matches, gridSize, gameComplete);
         }
     }, [matches, cards]);
+
+    // Save game state after each move or when game state changes
+    useEffect(() => {
+        if (cards.length > 0) {
+            saveGameState(cards, moves, matches, gridSize, gameComplete);
+        }
+    }, [cards, moves, matches, gameComplete]);
 
     // Calculate total cards needed (must be even)
     const getTotalCards = (): number => {
         const total = gridSize.rows * gridSize.columns;
         return total % 2 === 0 ? total : total - 1; // Ensure even number
+    };
+
+    // Handle loading saved game
+    const handleLoadGame = () => {
+        const gameState = loadGameState();
+
+        if (!gameState) {
+            alert('No saved game found!');
+            return;
+        }
+
+        setCards(gameState.cards);
+        setMoves(gameState.moves);
+        setMatches(gameState.matches);
+        setGridSize(gameState.gridSize);
+        setGameComplete(gameState.gameComplete);
+        setFirstCard(null);
+        setSecondCard(null);
+        setDisabled(false);
     };
 
     // Shuffle cards for new game
@@ -189,6 +204,7 @@ const MemoryGame: React.FC = () => {
                 <div>Matches: {matches} / {cards.length / 2}</div>
                 <div className="buttons">
                     <button onClick={startGame}>New Game</button>
+                    <button onClick={handleLoadGame}>Load Game</button>
                     <button onClick={() => setShowSettings(!showSettings)}>
                         {showSettings ? 'Hide Settings' : 'Grid Settings'}
                     </button>
