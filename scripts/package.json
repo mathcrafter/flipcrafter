@@ -1,0 +1,9 @@
+{
+    "name": "flipcrafter-scripts",
+    "version": "1.0.0",
+    "description": "Utility scripts for FlipCrafter",
+    "private": true,
+    "dependencies": {
+        "fs-extra": "^11.2.0"
+    }
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { getAssetPath } from '@/utils/assetPath';
 
 interface CardProps {
     card: {
@@ -19,9 +20,9 @@ export const Card: React.FC<CardProps> = ({ card, onClick }) => {
 
     const getImageSrc = () => {
         if (card.type === 'pickaxe') {
-            return `/assets/pickaxes/${card.name}.png`;
+            return getAssetPath(`/assets/pickaxes/${card.name}.png`);
         } else {
-            return `/assets/blocks/${card.name}.png`;
+            return getAssetPath(`/assets/blocks/${card.name}.png`);
         }
     };
 
@@ -55,7 +56,7 @@ export const Card: React.FC<CardProps> = ({ card, onClick }) => {
 
     // Sound effects
     const playFlipSound = () => {
-        const audio = new Audio('/assets/sounds/click.mp3');
+        const audio = new Audio(getAssetPath('/assets/sounds/click.mp3'));
         audio.volume = 0.5;
         audio.play().catch(err => console.log('Audio play failed:', err));
     };
