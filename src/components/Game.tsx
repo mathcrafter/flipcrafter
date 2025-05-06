@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from './Card';
 import { blockStore } from '@/stores/BlockStore';
 import { pickaxeStore } from '@/stores/PickaxeStore';
 import { CardType, GridSize } from '@/models/GameState';
 import { saveGameState, loadGameState } from '@/controllers/GameController';
+import SetupScreen from './SetupScreen';
 
 const Game: React.FC = () => {
     const [cards, setCards] = useState<CardType[]>([]);
@@ -17,28 +18,17 @@ const Game: React.FC = () => {
     const [matches, setMatches] = useState(0);
     const [gridSize, setGridSize] = useState<GridSize>({ rows: 2, columns: 2 });
     const [showSettings, setShowSettings] = useState(false);
+    const [showSetupScreen, setShowSetupScreen] = useState(true);
+    const [hasSavedGame, setHasSavedGame] = useState(false);
 
-    // Load saved game state on initial mount only
+    // Check for saved game on initial mount only
     useEffect(() => {
         // Skip during server-side rendering
         if (typeof window === 'undefined') return;
 
         const savedState = loadGameState();
-        console.log('Loaded saved game state:', savedState);
-        if (savedState) {
-            // Restore saved game state
-            setCards(savedState.cards);
-            setMoves(savedState.moves);
-            setMatches(savedState.matches);
-            setGridSize(savedState.gridSize);
-            setGameComplete(savedState.gameComplete);
-            setFirstCard(null);
-            setSecondCard(null);
-            setDisabled(false);
-        } else {
-            // Start a new game if no saved state
-            startGame();
-        }
+        console.log('Checking for saved game state:', savedState ? 'Found' : 'None');
+        setHasSavedGame(savedState !== null);
     }, []);  // Empty dependency array = run once on mount
 
     const isGameComplete = (cards: CardType[]) => {
@@ -133,6 +123,33 @@ const Game: React.FC = () => {
         setGameComplete(false);
     };
 
+    // Handle user starting a new game from setup screen
+    const handleStartNewGame = () => {
+        startGame();
+        setShowSetupScreen(false);
+    };
+
+    // Handle user continuing a saved game
+    const handleContinueSavedGame = () => {
+        const savedState = loadGameState();
+        if (savedState) {
+            setCards(savedState.cards);
+            setMoves(savedState.moves);
+            setMatches(savedState.matches);
+            setGridSize(savedState.gridSize);
+            setGameComplete(savedState.gameComplete);
+            setFirstCard(null);
+            setSecondCard(null);
+            setDisabled(false);
+        }
+        setShowSetupScreen(false);
+    };
+
+    // Handle returning to setup screen
+    const handleReturnToSetup = () => {
+        setShowSetupScreen(true);
+    };
+
     // Handle grid size change
     const handleGridSizeChange = (dimension: 'rows' | 'columns', value: number) => {
         setGridSize(prev => ({
@@ -207,70 +224,85 @@ const Game: React.FC = () => {
 
     return (
         <div>
-            <div className="stats">
-                <div>Moves: {moves}</div>
-                <div>Matches: {matches} / {cards.length / 2}</div>
-                <div className="buttons">
-                    <button onClick={startGame}>New Game</button>
-                    <button onClick={() => setShowSettings(!showSettings)}>
-                        {showSettings ? 'Hide Settings' : 'Grid Settings'}
-                    </button>
-                </div>
-            </div>
-
-            {showSettings && (
-                <div className="settings-panel">
-                    <div className="grid-settings">
-                        <div className="setting">
-                            <label htmlFor="rows">Rows: {gridSize.rows}</label>
-                            <input
-                                type="range"
-                                id="rows"
-                                min="2"
-                                max="8"
-                                value={gridSize.rows}
-                                onChange={(e) => handleGridSizeChange('rows', parseInt(e.target.value))}
-                            />
-                        </div>
-                        <div className="setting">
-                            <label htmlFor="columns">Columns: {gridSize.columns}</label>
-                            <input
-                                type="range"
-                                id="columns"
-                                min="2"
-                                max="8"
-                                value={gridSize.columns}
-                                onChange={(e) => handleGridSizeChange('columns', parseInt(e.target.value))}
-                            />
-                        </div>
-                        <div className="setting">
-                            <p>Total Cards: {getTotalCards()}</p>
+            {showSetupScreen ? (
+                <SetupScreen
+                    gridSize={gridSize}
+                    onGridSizeChange={handleGridSizeChange}
+                    onStartNewGame={handleStartNewGame}
+                    onContinueSavedGame={handleContinueSavedGame}
+                    hasSavedGame={hasSavedGame}
+                    getTotalCards={getTotalCards}
+                />
+            ) : (
+                <>
+                    <div className="stats">
+                        <div>Moves: {moves}</div>
+                        <div>Matches: {matches} / {cards.length / 2}</div>
+                        <div className="buttons">
+                            <button onClick={startGame}>New Game</button>
+                            <button onClick={() => setShowSettings(!showSettings)}>
+                                {showSettings ? 'Hide Settings' : 'Grid Settings'}
+                            </button>
+                            <button onClick={handleReturnToSetup}>Back to Menu</button>
                         </div>
                     </div>
-                </div>
-            )}
 
-            <div
-                className="memory-grid"
-                style={{
-                    gridTemplateColumns: `repeat(${gridSize.columns}, 1fr)`,
-                    gridTemplateRows: `repeat(${gridSize.rows}, 1fr)`,
-                }}
-            >
-                {cards.slice(0, getTotalCards()).map(card => (
-                    <Card
-                        key={card.id}
-                        card={card}
-                        onClick={() => handleCardClick(card)}
-                    />
-                ))}
-            </div>
+                    {showSettings && (
+                        <div className="settings-panel">
+                            <div className="grid-settings">
+                                <div className="setting">
+                                    <label htmlFor="rows">Rows: {gridSize.rows}</label>
+                                    <input
+                                        type="range"
+                                        id="rows"
+                                        min="2"
+                                        max="8"
+                                        value={gridSize.rows}
+                                        onChange={(e) => handleGridSizeChange('rows', parseInt(e.target.value))}
+                                    />
+                                </div>
+                                <div className="setting">
+                                    <label htmlFor="columns">Columns: {gridSize.columns}</label>
+                                    <input
+                                        type="range"
+                                        id="columns"
+                                        min="2"
+                                        max="8"
+                                        value={gridSize.columns}
+                                        onChange={(e) => handleGridSizeChange('columns', parseInt(e.target.value))}
+                                    />
+                                </div>
+                                <div className="setting">
+                                    <p>Total Cards: {getTotalCards()}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
-            {gameComplete && (
-                <div className="game-complete">
-                    <h2>Game Complete!</h2>
-                    <p>You completed the game in {moves} moves</p>
-                </div>
+                    <div
+                        className="memory-grid"
+                        style={{
+                            gridTemplateColumns: `repeat(${gridSize.columns}, 1fr)`,
+                            gridTemplateRows: `repeat(${gridSize.rows}, 1fr)`,
+                        }}
+                    >
+                        {cards.slice(0, getTotalCards()).map(card => (
+                            <Card
+                                key={card.id}
+                                card={card}
+                                onClick={() => handleCardClick(card)}
+                            />
+                        ))}
+                    </div>
+
+                    {gameComplete && (
+                        <div className="game-complete">
+                            <h2>Game Complete!</h2>
+                            <p>You completed the game in {moves} moves</p>
+                            <button onClick={handleReturnToSetup}>Back to Menu</button>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

@@ -1,17 +1,28 @@
 #!/bin/bash
 
-# Use Node.js 22
+# Setup script for flipcrafter project
+echo "Setting up flipcrafter development environment..."
+
+# Use Node.js v22
+echo "Using Node.js v22..."
 nvm use 22
 
-# Install dependencies
+# Install dependencies for scripts directory
+echo "Installing script dependencies with uv..."
+cd scripts
+python -m venv .venv
+source .venv/bin/activate
+pip install uv
+uv pip install -r requirements.txt 2>/dev/null || echo "No requirements.txt found, skipping script dependencies"
+deactivate
+cd ..
+
+# Install project dependencies
+echo "Installing project dependencies..."
 npm install
 
-# Setup MathCrafter theme assets
-echo "Setting up MathCrafter theme assets..."
-node scripts/setup-mathcrafter-assets.js
+# Build the project
+echo "Building the project..."
+npm run build
 
-# Update theme colors
-echo "Setting up MathCrafter theme colors..."
-node scripts/update-mathcrafter-theme.js
-
-echo "Setup complete! Run 'npm run dev' to start the development server." 
+echo "Setup complete! Start the development server with: nvm use 22 && npm run dev" 

@@ -6,11 +6,6 @@ import Game from '@/components/Game';
 export default function Home() {
     return (
         <main className="container">
-            <header>
-                <h1>FlipCrafter</h1>
-                <p className="subtitle">A memory game</p>
-            </header>
-
             <section className="game-section">
                 <Game />
             </section>
