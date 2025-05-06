@@ -10,6 +10,7 @@ import { saveGameState, loadGameState } from '@/controllers/GameController';
 import SetupScreen from './SetupScreen';
 import Inventory, { InventoryItem } from './Inventory';
 import ItemAnimation from './ItemAnimation';
+import BiomeSelector from './BiomeSelector';
 
 const Game: React.FC = () => {
     const [cards, setCards] = useState<CardType[]>([]);
@@ -24,6 +25,10 @@ const Game: React.FC = () => {
     const [hasSavedGame, setHasSavedGame] = useState(false);
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
     const [currentBiome, setCurrentBiome] = useState<string>('plains');
+    const [unlockedBiomes, setUnlockedBiomes] = useState<string[]>(['plains']);
+    const [showBiomeSelector, setShowBiomeSelector] = useState(false);
+    const [showBiomeUnlocked, setShowBiomeUnlocked] = useState(false);
+    const [newlyUnlockedBiome, setNewlyUnlockedBiome] = useState<string | null>(null);
     const [animatingItem, setAnimatingItem] = useState<{
         type: 'block' | 'pickaxe',
         name: string,
@@ -42,9 +47,14 @@ const Game: React.FC = () => {
         console.log('Checking for saved game state:', savedState ? 'Found' : 'None');
         setHasSavedGame(savedState !== null);
 
-        // Set current biome from saved state if it exists
-        if (savedState?.currentBiome) {
-            setCurrentBiome(savedState.currentBiome);
+        // Set current biome and unlocked biomes from saved state if they exist
+        if (savedState) {
+            if (savedState.currentBiome) {
+                setCurrentBiome(savedState.currentBiome);
+            }
+            if (savedState.unlockedBiomes && savedState.unlockedBiomes.length > 0) {
+                setUnlockedBiomes(savedState.unlockedBiomes);
+            }
         }
 
         // Load saved inventory if it exists
@@ -79,17 +89,61 @@ const Game: React.FC = () => {
     useEffect(() => {
         if (cards.length > 0 && isGameComplete(cards)) {
             setGameComplete(true);
+
+            // Check if we can unlock the next biome
+            tryUnlockNextBiome();
+
             // Save when game is complete
-            saveGameState(cards, moves, matches, gridSize, gameComplete, currentBiome);
+            saveGameState(cards, moves, matches, gridSize, gameComplete, currentBiome, unlockedBiomes);
         }
-    }, [matches, cards, currentBiome]);
+    }, [matches, cards, currentBiome, unlockedBiomes]);
+
+    // Try to unlock the next biome in sequence
+    const tryUnlockNextBiome = () => {
+        // Get all biomes in order
+        const allBiomes = biomeStore.items;
+        const currentBiomeIndex = allBiomes.findIndex(biome => biome.name === currentBiome);
+
+        // If we found the current biome and it's not the last one
+        if (currentBiomeIndex !== -1 && currentBiomeIndex < allBiomes.length - 1) {
+            const nextBiome = allBiomes[currentBiomeIndex + 1];
+
+            // Check if we've already unlocked it
+            if (!unlockedBiomes.includes(nextBiome.name)) {
+                // Unlock the new biome
+                const updatedUnlockedBiomes = [...unlockedBiomes, nextBiome.name];
+                setUnlockedBiomes(updatedUnlockedBiomes);
+                setNewlyUnlockedBiome(nextBiome.name);
+                setShowBiomeUnlocked(true);
+
+                // Save the updated unlocked biomes
+                saveGameState(
+                    cards,
+                    moves,
+                    matches,
+                    gridSize,
+                    gameComplete,
+                    currentBiome,
+                    updatedUnlockedBiomes
+                );
+            }
+        }
+    };
 
     // Save game state after each move or when game state changes
     useEffect(() => {
         if (cards.length > 0) {
-            saveGameState(cards, moves, matches, gridSize, gameComplete, currentBiome);
+            saveGameState(
+                cards,
+                moves,
+                matches,
+                gridSize,
+                gameComplete,
+                currentBiome,
+                unlockedBiomes
+            );
         }
-    }, [cards, moves, matches, gameComplete, currentBiome]);
+    }, [cards, moves, matches, gameComplete, currentBiome, unlockedBiomes]);
 
     // Calculate total cards needed (must be even)
     const getTotalCards = (): number => {
@@ -99,6 +153,12 @@ const Game: React.FC = () => {
 
     // Shuffle cards for new game
     const resetGame = () => {
+        // Show biome selector first
+        setShowBiomeSelector(true);
+    };
+
+    // Handle actually resetting the game after biome is selected
+    const handleActualGameReset = () => {
         // Calculate how many pairs we need based on grid size
         const totalCards = getTotalCards();
         const pairsNeeded = totalCards / 2;
@@ -158,16 +218,22 @@ const Game: React.FC = () => {
         setGameComplete(false);
     };
 
-    // Change the current biome
-    const changeBiome = (biomeName: string) => {
-        if (biomeStore.map.has(biomeName)) {
-            setCurrentBiome(biomeName);
-        }
+    // Handle selecting a biome
+    const handleSelectBiome = (biomeName: string) => {
+        setCurrentBiome(biomeName);
+        setShowBiomeSelector(false);
+        handleActualGameReset();
+    };
+
+    // Handle closing the biome selector without changing biome
+    const handleCloseBiomeSelector = () => {
+        setShowBiomeSelector(false);
+        handleActualGameReset();
     };
 
     // Handle user starting a new game from setup screen
     const handleStartNewGame = () => {
-        resetGame();
+        setShowBiomeSelector(true);
         setShowSetupScreen(false);
     };
 
@@ -181,6 +247,7 @@ const Game: React.FC = () => {
             setGridSize(savedState.gridSize);
             setGameComplete(savedState.gameComplete);
             setCurrentBiome(savedState.currentBiome || 'plains');
+            setUnlockedBiomes(savedState.unlockedBiomes || ['plains']);
             setFirstCard(null);
             setSecondCard(null);
             setDisabled(false);
@@ -346,6 +413,12 @@ const Game: React.FC = () => {
         setDisabled(false);
     };
 
+    // Handle acknowledging the new biome unlock
+    const handleAcknowledgeUnlock = () => {
+        setShowBiomeUnlocked(false);
+        setNewlyUnlockedBiome(null);
+    };
+
     return (
         <div className="game-container">
             {showSetupScreen ? (
@@ -360,16 +433,15 @@ const Game: React.FC = () => {
             ) : (
                 <>
                     <div className="stats">
+                        <div className="biome-info my-2 text-center">
+                            <p>Current Biome: <strong className="capitalize">{currentBiome.replace(/_/g, ' ')}</strong></p>
+                        </div>
                         <div>Moves: {moves}</div>
                         <div>Matches: {matches} / {cards.length / 2}</div>
                         <div className="buttons">
                             <button onClick={resetGame}>Reset</button>
                             <button onClick={handleReturnToSetup}>Back to Menu</button>
                         </div>
-                    </div>
-
-                    <div className="biome-info my-2 text-center">
-                        <p>Current Biome: <strong className="capitalize">{currentBiome.replace('_', ' ')}</strong></p>
                     </div>
 
                     <div
@@ -404,7 +476,48 @@ const Game: React.FC = () => {
                         />
                     )}
 
-                    {gameComplete && (
+                    {/* Biome selector modal */}
+                    {showBiomeSelector && (
+                        <BiomeSelector
+                            unlockedBiomes={unlockedBiomes}
+                            currentBiome={currentBiome}
+                            onSelectBiome={handleSelectBiome}
+                            onClose={handleCloseBiomeSelector}
+                        />
+                    )}
+
+                    {/* New biome unlocked notification */}
+                    {showBiomeUnlocked && newlyUnlockedBiome && (
+                        <div className="biome-selector-overlay">
+                            <div className="biome-selector-modal new-biome-unlocked">
+                                <div className="biome-selector-header">
+                                    <h2>New Biome Unlocked!</h2>
+                                </div>
+                                <div className="biome-unlocked-content">
+                                    <div className="biome-image-container">
+                                        <img
+                                            src={`/assets/biomes/${newlyUnlockedBiome}.png`}
+                                            alt={`${newlyUnlockedBiome} biome`}
+                                            className="biome-image"
+                                        />
+                                    </div>
+                                    <p className="unlocked-message">
+                                        You've unlocked the <strong className="capitalize">{newlyUnlockedBiome.replace(/_/g, ' ')}</strong> biome!
+                                    </p>
+                                    <p className="biome-description">
+                                        {biomeStore.getItemByName(newlyUnlockedBiome).description}
+                                    </p>
+                                </div>
+                                <div className="biome-selector-footer">
+                                    <button className="confirm-button" onClick={handleAcknowledgeUnlock}>
+                                        Awesome!
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {gameComplete && !showBiomeUnlocked && (
                         <div className="game-complete">
                             <h2>Game Complete!</h2>
                             <p>You completed the game in {moves} moves</p>

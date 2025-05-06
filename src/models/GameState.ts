@@ -5,6 +5,7 @@ export interface IGameState {
     gridSize: GridSize;
     gameComplete: boolean;
     currentBiome: string;
+    unlockedBiomes: string[];
 }
 
 export interface CardType {
@@ -28,6 +29,7 @@ export class GameState implements IGameState {
     gridSize: GridSize;
     gameComplete: boolean;
     currentBiome: string;
+    unlockedBiomes: string[];
 
     constructor(
         cards: CardType[] = [],
@@ -35,7 +37,8 @@ export class GameState implements IGameState {
         matches: number = 0,
         gridSize: GridSize = { rows: 4, columns: 4 },
         gameComplete: boolean = false,
-        currentBiome: string = 'plains'
+        currentBiome: string = 'plains',
+        unlockedBiomes: string[] = ['plains']
     ) {
         this.cards = cards;
         this.moves = moves;
@@ -43,6 +46,7 @@ export class GameState implements IGameState {
         this.gridSize = gridSize;
         this.gameComplete = gameComplete;
         this.currentBiome = currentBiome;
+        this.unlockedBiomes = unlockedBiomes;
     }
 
     static fromJSON(json: string): GameState {
@@ -53,7 +57,8 @@ export class GameState implements IGameState {
             data.matches,
             data.gridSize,
             data.gameComplete,
-            data.currentBiome || 'plains'
+            data.currentBiome || 'plains',
+            data.unlockedBiomes || ['plains']
         );
     }
 
@@ -64,7 +69,8 @@ export class GameState implements IGameState {
             matches: this.matches,
             gridSize: this.gridSize,
             gameComplete: this.gameComplete,
-            currentBiome: this.currentBiome
+            currentBiome: this.currentBiome,
+            unlockedBiomes: this.unlockedBiomes
         });
     }
 };
