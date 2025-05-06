@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import MemoryGame from '@/components/MemoryGame';
+import Game from '@/components/Game';
 
 export default function Home() {
     return (
@@ -12,7 +12,7 @@ export default function Home() {
             </header>
 
             <section className="game-section">
-                <MemoryGame />
+                <Game />
             </section>
 
             <footer>

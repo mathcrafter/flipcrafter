@@ -7,7 +7,7 @@ import { pickaxeStore } from '@/stores/PickaxeStore';
 import { GameState, CardType, GridSize } from '@/models/GameState';
 import { saveGameState, loadGameState, GAME_STATE_KEY } from '@/controllers/GameController';
 
-const MemoryGame: React.FC = () => {
+const Game: React.FC = () => {
     const [cards, setCards] = useState<CardType[]>([]);
     const [moves, setMoves] = useState(0);
     const [firstCard, setFirstCard] = useState<CardType | null>(null);
@@ -309,4 +309,4 @@ const MemoryGame: React.FC = () => {
     );
 };
 
-export default MemoryGame; 
+export default Game; 
