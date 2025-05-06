@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card } from './Card';
 import { blockStore } from '@/stores/BlockStore';
 import { pickaxeStore } from '@/stores/PickaxeStore';
-import { GameState, CardType, GridSize } from '@/models/GameState';
-import { saveGameState, loadGameState, GAME_STATE_KEY } from '@/controllers/GameController';
+import { CardType, GridSize } from '@/models/GameState';
+import { saveGameState, loadGameState } from '@/controllers/GameController';
 
 const Game: React.FC = () => {
     const [cards, setCards] = useState<CardType[]>([]);
@@ -15,9 +15,8 @@ const Game: React.FC = () => {
     const [disabled, setDisabled] = useState(false);
     const [gameComplete, setGameComplete] = useState(false);
     const [matches, setMatches] = useState(0);
-    const [gridSize, setGridSize] = useState<GridSize>({ rows: 4, columns: 4 });
+    const [gridSize, setGridSize] = useState<GridSize>({ rows: 2, columns: 2 });
     const [showSettings, setShowSettings] = useState(false);
-    const initialLoadAttempted = useRef(false);
 
     // Load saved game state on initial mount only
     useEffect(() => {
@@ -42,21 +41,10 @@ const Game: React.FC = () => {
         }
     }, []);  // Empty dependency array = run once on mount
 
-    // Start new game when grid size changes (but not on initial mount)
-    useEffect(() => {
-        // Skip the first render since it's handled by the load state effect
-        if (initialLoadAttempted.current) {
-            startGame();
-        }
-        initialLoadAttempted.current = true;
-    }, [gridSize]);
-
     const isGameComplete = (cards: CardType[]) => {
-        if (cards.length > 0) {
-            for (const card of cards) {
-                if (!card.matched) {
-                    return false;
-                }
+        for (const card of cards) {
+            if (!card.matched) {
+                return false;
             }
         }
         return true;
@@ -64,7 +52,7 @@ const Game: React.FC = () => {
 
     // Check if game is complete
     useEffect(() => {
-        if (isGameComplete(cards)) {
+        if (cards.length > 0 && isGameComplete(cards)) {
             setGameComplete(true);
             // Save when game is complete
             saveGameState(cards, moves, matches, gridSize, gameComplete);
@@ -82,26 +70,6 @@ const Game: React.FC = () => {
     const getTotalCards = (): number => {
         const total = gridSize.rows * gridSize.columns;
         return total % 2 === 0 ? total : total - 1; // Ensure even number
-    };
-
-    // Handle loading saved game
-    const handleLoadGame = () => {
-        const gameState = loadGameState();
-        console.log('Loaded saved game state:', gameState);
-
-        if (!gameState) {
-            alert('No saved game found!');
-            return;
-        }
-
-        setCards(gameState.cards);
-        setMoves(gameState.moves);
-        setMatches(gameState.matches);
-        setGridSize(gameState.gridSize);
-        setGameComplete(gameState.gameComplete);
-        setFirstCard(null);
-        setSecondCard(null);
-        setDisabled(false);
     };
 
     // Shuffle cards for new game
@@ -244,7 +212,6 @@ const Game: React.FC = () => {
                 <div>Matches: {matches} / {cards.length / 2}</div>
                 <div className="buttons">
                     <button onClick={startGame}>New Game</button>
-                    <button onClick={handleLoadGame}>Load Game</button>
                     <button onClick={() => setShowSettings(!showSettings)}>
                         {showSettings ? 'Hide Settings' : 'Grid Settings'}
                     </button>
