@@ -153,13 +153,15 @@ const Game: React.FC = () => {
     };
 
     // Shuffle cards for new game
-    const resetGame = () => {
-        // Show biome selector first
+    const handleNewBoard = () => {
+        // Reset game complete state
+        setGameComplete(false);
+        // Show biome selector
         setShowBiomeSelector(true);
     };
 
     // Handle actually resetting the game after biome is selected
-    const handleActualGameReset = () => {
+    const handleGameReset = () => {
         // Calculate how many pairs we need based on grid size
         const totalCards = getTotalCards();
         const pairsNeeded = totalCards / 2;
@@ -263,13 +265,13 @@ const Game: React.FC = () => {
     const handleSelectBiome = (biomeName: string) => {
         setCurrentBiome(biomeName);
         setShowBiomeSelector(false);
-        handleActualGameReset();
+        handleGameReset();
     };
 
     // Handle closing the biome selector without changing biome
     const handleCloseBiomeSelector = () => {
         setShowBiomeSelector(false);
-        handleActualGameReset();
+        handleGameReset();
     };
 
     // Handle user starting a new game from setup screen
@@ -480,7 +482,7 @@ const Game: React.FC = () => {
                         <div>Moves: {moves}</div>
                         <div>Matches: {matches} / {cards.length / 2}</div>
                         <div className="buttons">
-                            <button onClick={resetGame}>Reset</button>
+                            <button onClick={handleNewBoard}>New Board</button>
                             <button onClick={handleReturnToSetup}>Back to Menu</button>
                         </div>
                     </div>
@@ -559,11 +561,22 @@ const Game: React.FC = () => {
                     )}
 
                     {gameComplete && !showBiomeUnlocked && (
-                        <div className="game-complete">
-                            <h2>Game Complete!</h2>
-                            <p>You completed the game in {moves} moves</p>
-                            <p>You collected {inventory.reduce((total, item) => total + item.count, 0)} items!</p>
-                            <button onClick={handleReturnToSetup}>Back to Menu</button>
+                        <div className="biome-selector-overlay">
+                            <div className="biome-selector-modal congratulations-modal">
+                                <div className="biome-selector-header" style={{ textAlign: 'center' }}>
+                                    <h2>Congratulations!</h2>
+                                </div>
+                                <div className="modal-content" style={{ textAlign: 'center' }}>
+                                    <div className="celebration-icon mb-4" style={{ fontSize: '3rem', textAlign: 'center' }}>
+                                        🎉
+                                    </div>
+                                    <p className="mb-2" style={{ textAlign: 'center' }}>You completed the game in <strong>{moves}</strong> moves!</p>
+                                    <p style={{ textAlign: 'center' }}>You collected <strong>{inventory.reduce((total, item) => total + item.count, 0)}</strong> items!</p>
+                                </div>
+                                <div className="biome-selector-footer">
+                                    <button className="confirm-button w-full" onClick={handleNewBoard}>Switch Biome</button>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </>
