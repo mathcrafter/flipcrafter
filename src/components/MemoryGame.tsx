@@ -7,15 +7,7 @@ import { pickaxeStore } from '@/stores/PickaxeStore';
 import { GameState, CardType, GridSize } from '@/models/GameState';
 import { saveGameState, loadGameState, GAME_STATE_KEY } from '@/controllers/GameController';
 
-interface MemoryGameProps {
-    initialGridSize?: GridSize;
-    shouldLoadGame?: boolean;
-}
-
-const MemoryGame: React.FC<MemoryGameProps> = ({
-    initialGridSize = { rows: 4, columns: 4 },
-    shouldLoadGame = false
-}) => {
+const MemoryGame: React.FC = () => {
     const [cards, setCards] = useState<CardType[]>([]);
     const [moves, setMoves] = useState(0);
     const [firstCard, setFirstCard] = useState<CardType | null>(null);
@@ -23,17 +15,13 @@ const MemoryGame: React.FC<MemoryGameProps> = ({
     const [disabled, setDisabled] = useState(false);
     const [gameComplete, setGameComplete] = useState(false);
     const [matches, setMatches] = useState(0);
-    const [gridSize, setGridSize] = useState<GridSize>(initialGridSize);
+    const [gridSize, setGridSize] = useState<GridSize>({ rows: 4, columns: 4 });
     const [showSettings, setShowSettings] = useState(false);
 
     // Initialize game
     useEffect(() => {
-        if (shouldLoadGame) {
-            handleLoadGame();
-        } else {
-            startGame();
-        }
-    }, [gridSize, shouldLoadGame]);
+        startGame();
+    }, [gridSize]);
 
     // Check if game is complete
     useEffect(() => {
@@ -63,7 +51,6 @@ const MemoryGame: React.FC<MemoryGameProps> = ({
 
         if (!gameState) {
             alert('No saved game found!');
-            startGame(); // Start a new game if no saved game found
             return;
         }
 
