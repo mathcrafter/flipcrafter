@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card } from './Card';
 import { blockStore } from '@/stores/BlockStore';
 import { pickaxeStore } from '@/stores/PickaxeStore';
+import { biomeStore } from '@/stores/BiomeStore';
 import { CardType, GridSize } from '@/models/GameState';
 import { saveGameState, loadGameState } from '@/controllers/GameController';
 import SetupScreen from './SetupScreen';
@@ -22,6 +23,7 @@ const Game: React.FC = () => {
     const [showSetupScreen, setShowSetupScreen] = useState(true);
     const [hasSavedGame, setHasSavedGame] = useState(false);
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
+    const [currentBiome, setCurrentBiome] = useState<string>('plains');
     const [animatingItem, setAnimatingItem] = useState<{
         type: 'block' | 'pickaxe',
         name: string,
@@ -39,6 +41,11 @@ const Game: React.FC = () => {
         const savedState = loadGameState();
         console.log('Checking for saved game state:', savedState ? 'Found' : 'None');
         setHasSavedGame(savedState !== null);
+
+        // Set current biome from saved state if it exists
+        if (savedState?.currentBiome) {
+            setCurrentBiome(savedState.currentBiome);
+        }
 
         // Load saved inventory if it exists
         const savedInventory = localStorage.getItem('inventory');
@@ -73,16 +80,16 @@ const Game: React.FC = () => {
         if (cards.length > 0 && isGameComplete(cards)) {
             setGameComplete(true);
             // Save when game is complete
-            saveGameState(cards, moves, matches, gridSize, gameComplete);
+            saveGameState(cards, moves, matches, gridSize, gameComplete, currentBiome);
         }
-    }, [matches, cards]);
+    }, [matches, cards, currentBiome]);
 
     // Save game state after each move or when game state changes
     useEffect(() => {
         if (cards.length > 0) {
-            saveGameState(cards, moves, matches, gridSize, gameComplete);
+            saveGameState(cards, moves, matches, gridSize, gameComplete, currentBiome);
         }
-    }, [cards, moves, matches, gameComplete]);
+    }, [cards, moves, matches, gameComplete, currentBiome]);
 
     // Calculate total cards needed (must be even)
     const getTotalCards = (): number => {
@@ -151,6 +158,13 @@ const Game: React.FC = () => {
         setGameComplete(false);
     };
 
+    // Change the current biome
+    const changeBiome = (biomeName: string) => {
+        if (biomeStore.map.has(biomeName)) {
+            setCurrentBiome(biomeName);
+        }
+    };
+
     // Handle user starting a new game from setup screen
     const handleStartNewGame = () => {
         resetGame();
@@ -166,6 +180,7 @@ const Game: React.FC = () => {
             setMatches(savedState.matches);
             setGridSize(savedState.gridSize);
             setGameComplete(savedState.gameComplete);
+            setCurrentBiome(savedState.currentBiome || 'plains');
             setFirstCard(null);
             setSecondCard(null);
             setDisabled(false);
@@ -353,6 +368,10 @@ const Game: React.FC = () => {
                         </div>
                     </div>
 
+                    <div className="biome-info my-2 text-center">
+                        <p>Current Biome: <strong className="capitalize">{currentBiome.replace('_', ' ')}</strong></p>
+                    </div>
+
                     <div
                         className="memory-grid"
                         style={{
@@ -364,6 +383,7 @@ const Game: React.FC = () => {
                             <Card
                                 key={card.id}
                                 card={card}
+                                biome={currentBiome}
                                 onClick={(cardElement) => handleCardClick(card, cardElement)}
                             />
                         ))}

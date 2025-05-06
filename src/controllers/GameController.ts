@@ -9,7 +9,8 @@ export const saveGameState = (
     moves: number,
     matches: number,
     gridSize: GridSize,
-    gameComplete: boolean
+    gameComplete: boolean,
+    currentBiome: string
 ): void => {
     if (typeof window === 'undefined') return;
 
@@ -18,7 +19,8 @@ export const saveGameState = (
         moves,
         matches,
         gridSize,
-        gameComplete
+        gameComplete,
+        currentBiome
     );
 
     localStorage.setItem(GAME_STATE_KEY, gameState.toJSON());

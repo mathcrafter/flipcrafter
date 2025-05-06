@@ -12,10 +12,11 @@ interface CardProps {
         flipped: boolean;
         rarity: string;
     };
+    biome: string;
     onClick: (element: HTMLElement) => void;
 }
 
-export const Card: React.FC<CardProps> = ({ card, onClick }) => {
+export const Card: React.FC<CardProps> = ({ card, biome, onClick }) => {
     console.log('Card:', card);
     const cardRef = useRef<HTMLDivElement>(null);
 
@@ -25,6 +26,10 @@ export const Card: React.FC<CardProps> = ({ card, onClick }) => {
         } else {
             return getAssetPath(`/assets/blocks/${card.name}.png`);
         }
+    };
+
+    const getBiomeImageSrc = () => {
+        return `/assets/biomes/${biome}.png`;
     };
 
     // Get color based on rarity (academic style)
@@ -79,8 +84,8 @@ export const Card: React.FC<CardProps> = ({ card, onClick }) => {
             data-card-id={card.id}
         >
             <div className="card-inner">
-                <div className="card-front">
-                    <div className="question-mark">?</div>
+                <div className="card-front" style={{ backgroundImage: `url(${getBiomeImageSrc()})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                    <div className="biome-overlay">?</div>
                 </div>
                 <div className="card-back">
                     <img src={getImageSrc()} alt={card.name} />

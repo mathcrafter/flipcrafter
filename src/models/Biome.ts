@@ -1,8 +1,3 @@
-import { biomeStore } from "@/stores/BiomeStore";
-import { chestStore } from "@/stores/ChestStore";
-import { getAssetPath } from "@/utils/assetPath";
-import { Chest } from "./Chest";
-
 export interface Biome {
     name: string;
     description: string;
