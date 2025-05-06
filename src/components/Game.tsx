@@ -63,7 +63,7 @@ const Game: React.FC = () => {
     };
 
     // Shuffle cards for new game
-    const startGame = () => {
+    const resetGame = () => {
         // Calculate how many pairs we need based on grid size
         const totalCards = getTotalCards();
         const pairsNeeded = totalCards / 2;
@@ -125,7 +125,7 @@ const Game: React.FC = () => {
 
     // Handle user starting a new game from setup screen
     const handleStartNewGame = () => {
-        startGame();
+        resetGame();
         setShowSetupScreen(false);
     };
 
@@ -239,10 +239,10 @@ const Game: React.FC = () => {
                         <div>Moves: {moves}</div>
                         <div>Matches: {matches} / {cards.length / 2}</div>
                         <div className="buttons">
-                            <button onClick={startGame}>New Game</button>
-                            <button onClick={() => setShowSettings(!showSettings)}>
+                            <button onClick={resetGame}>Reset</button>
+                            {/* <button onClick={() => setShowSettings(!showSettings)}>
                                 {showSettings ? 'Hide Settings' : 'Grid Settings'}
-                            </button>
+                            </button> */}
                             <button onClick={handleReturnToSetup}>Back to Menu</button>
                         </div>
                     </div>
