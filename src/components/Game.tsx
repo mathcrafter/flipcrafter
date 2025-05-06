@@ -163,25 +163,58 @@ const Game: React.FC = () => {
         const totalCards = getTotalCards();
         const pairsNeeded = totalCards / 2;
 
+        // Get the current biome
+        const currentBiomeObj = biomeStore.getItemByName(currentBiome);
+
         // Get all blocks and pickaxes from stores
-        const availableBlocks = blockStore.items;
-        const availablePickaxes = pickaxeStore.items;
+        const allBlocks = blockStore.items;
+        const allPickaxes = pickaxeStore.items;
+
+        // Filter blocks and pickaxes based on the current biome
+        const biomeBlocks = allBlocks.filter(block =>
+            currentBiomeObj.availableBlocks.includes(block.name)
+        );
+
+        const biomePickaxes = allPickaxes.filter(pickaxe =>
+            currentBiomeObj.availablePickaxes.includes(pickaxe.name)
+        );
+
+        // Create arrays for blocks and pickaxes with a chance to include non-biome items
+        let availableBlocks = [...biomeBlocks];
+        let availablePickaxes = [...biomePickaxes];
+
+        // Add non-biome blocks with a 5% chance
+        allBlocks.forEach(block => {
+            if (!currentBiomeObj.availableBlocks.includes(block.name) && Math.random() < 0.05) {
+                availableBlocks.push(block);
+            }
+        });
+
+        // Add non-biome pickaxes with a 5% chance
+        allPickaxes.forEach(pickaxe => {
+            if (!currentBiomeObj.availablePickaxes.includes(pickaxe.name) && Math.random() < 0.05) {
+                availablePickaxes.push(pickaxe);
+            }
+        });
 
         // Determine how many of each type to use
+        // If we don't have enough, we'll use as many as we can
         const pickaxeCount = Math.min(Math.ceil(pairsNeeded / 2), availablePickaxes.length);
         const blockCount = Math.min(pairsNeeded - pickaxeCount, availableBlocks.length);
 
-        // If we don't have enough blocks and pickaxes, adjust the counts
+        // If we don't have enough blocks and pickaxes for the biome, adjust the counts
         const adjustedPickaxeCount = pickaxeCount + Math.max(0, pairsNeeded - pickaxeCount - blockCount);
+        const finalPickaxeCount = Math.min(adjustedPickaxeCount, availablePickaxes.length);
+        const finalBlockCount = Math.min(blockCount, availableBlocks.length);
 
         // Shuffle and select random pickaxes and blocks
         const shuffledPickaxes = [...availablePickaxes]
             .sort(() => Math.random() - 0.5)
-            .slice(0, adjustedPickaxeCount);
+            .slice(0, finalPickaxeCount);
 
         const shuffledBlocks = [...availableBlocks]
             .sort(() => Math.random() - 0.5)
-            .slice(0, blockCount);
+            .slice(0, finalBlockCount);
 
         // Combine pickaxes and blocks
         const selectedItems = [
@@ -197,8 +230,15 @@ const Game: React.FC = () => {
             }))
         ];
 
+        // If we still don't have enough items for pairs, duplicate some
+        let finalItems = [...selectedItems];
+        while (finalItems.length < pairsNeeded) {
+            const randomIndex = Math.floor(Math.random() * selectedItems.length);
+            finalItems.push(selectedItems[randomIndex]);
+        }
+
         // Create pairs
-        const cardPairs = [...selectedItems, ...selectedItems].map((item, index) => ({
+        const cardPairs = [...finalItems, ...finalItems].map((item, index) => ({
             id: index,
             type: item.type,
             name: item.name,
