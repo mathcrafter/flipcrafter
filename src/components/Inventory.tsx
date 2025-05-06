@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { getAssetPath } from '@/utils/assetPath';
 
 export type InventoryItem = {
     type: 'block' | 'pickaxe';
@@ -25,7 +26,7 @@ export const Inventory: React.FC<InventoryProps> = ({ items }) => {
                         <div key={`${item.type}-${item.name}`} className="inventory-slot">
                             <div className="inventory-item" data-rarity={item.rarity}>
                                 <img
-                                    src={`/assets/${item.type}s/${item.name}.png`}
+                                    src={getAssetPath(`/assets/${item.type}s/${item.name}.png`)}
                                     alt={item.name}
                                     className="inventory-image"
                                 />

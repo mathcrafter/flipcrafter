@@ -11,6 +11,7 @@ import SetupScreen from './SetupScreen';
 import Inventory, { InventoryItem } from './Inventory';
 import ItemAnimation from './ItemAnimation';
 import BiomeSelector from './BiomeSelector';
+import { getAssetPath } from '@/utils/assetPath';
 
 const Game: React.FC = () => {
     const [cards, setCards] = useState<CardType[]>([]);
@@ -536,7 +537,7 @@ const Game: React.FC = () => {
                                 <div className="biome-unlocked-content">
                                     <div className="biome-image-container">
                                         <img
-                                            src={`/assets/biomes/${newlyUnlockedBiome}.png`}
+                                            src={getAssetPath(`/assets/biomes/${newlyUnlockedBiome}.png`)}
                                             alt={`${newlyUnlockedBiome} biome`}
                                             className="biome-image"
                                         />

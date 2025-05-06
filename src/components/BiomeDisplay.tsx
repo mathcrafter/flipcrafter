@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { biomeStore } from '@/stores/BiomeStore';
+import { getAssetPath } from '@/utils/assetPath';
 
 interface BiomeDisplayProps {
     currentBiome: string;
@@ -10,7 +11,7 @@ interface BiomeDisplayProps {
 }
 
 const BiomeDisplay: React.FC<BiomeDisplayProps> = ({ currentBiome, className = '' }) => {
-    const biomeImagePath = `/assets/biomes/${currentBiome}.png`;
+    const biomeImagePath = getAssetPath(`/assets/biomes/${currentBiome}.png`);
     const biome = biomeStore.getItemByName(currentBiome);
 
     return (

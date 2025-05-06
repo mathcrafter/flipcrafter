@@ -29,7 +29,7 @@ export const Card: React.FC<CardProps> = ({ card, biome, onClick }) => {
     };
 
     const getBiomeImageSrc = () => {
-        return `/assets/biomes/${biome}.png`;
+        return getAssetPath(`/assets/biomes/${biome}.png`);
     };
 
     // Get color based on rarity (academic style)

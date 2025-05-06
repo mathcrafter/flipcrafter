@@ -1,5 +1,6 @@
 'use client';
 
+import { getAssetPath } from '@/utils/assetPath';
 import React, { useEffect, useState } from 'react';
 
 interface AnimatedItemProps {
@@ -48,7 +49,7 @@ const ItemAnimation: React.FC<AnimatedItemProps> = ({
             } as React.CSSProperties}
         >
             <img
-                src={`/assets/${type}s/${name}.png`}
+                src={getAssetPath(`/assets/${type}s/${name}.png`)}
                 alt={name}
                 className="animated-item-image"
             />

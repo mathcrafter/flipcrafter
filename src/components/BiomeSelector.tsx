@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { biomeStore } from '@/stores/BiomeStore';
 import { Biome } from '@/models/Biome';
+import { getAssetPath } from '@/utils/assetPath';
 
 interface BiomeSelectorProps {
     unlockedBiomes: string[];
@@ -51,7 +52,7 @@ const BiomeSelector: React.FC<BiomeSelectorProps> = ({
                         >
                             <div className="biome-image-container">
                                 <Image
-                                    src={`/assets/biomes/${biome.name}.png`}
+                                    src={getAssetPath(`/assets/biomes/${biome.name}.png`)}
                                     alt={biome.description}
                                     width={160}
                                     height={100}
