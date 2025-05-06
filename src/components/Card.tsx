@@ -15,6 +15,8 @@ interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({ card, onClick }) => {
+    console.log('Card:', card);
+
     const getImageSrc = () => {
         if (card.type === 'pickaxe') {
             return `/assets/pickaxes/${card.name}.png`;

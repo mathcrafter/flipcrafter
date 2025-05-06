@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card } from './Card';
 import { blockStore } from '@/stores/BlockStore';
 import { pickaxeStore } from '@/stores/PickaxeStore';
@@ -17,15 +17,54 @@ const MemoryGame: React.FC = () => {
     const [matches, setMatches] = useState(0);
     const [gridSize, setGridSize] = useState<GridSize>({ rows: 4, columns: 4 });
     const [showSettings, setShowSettings] = useState(false);
+    const initialLoadAttempted = useRef(false);
 
-    // Initialize game
+    // Load saved game state on initial mount only
     useEffect(() => {
-        startGame();
+        // Skip during server-side rendering
+        if (typeof window === 'undefined') return;
+
+        const savedState = loadGameState();
+        console.log('Loaded saved game state:', savedState);
+        if (savedState) {
+            // Restore saved game state
+            setCards(savedState.cards);
+            setMoves(savedState.moves);
+            setMatches(savedState.matches);
+            setGridSize(savedState.gridSize);
+            setGameComplete(savedState.gameComplete);
+            setFirstCard(null);
+            setSecondCard(null);
+            setDisabled(false);
+        } else {
+            // Start a new game if no saved state
+            startGame();
+        }
+    }, []);  // Empty dependency array = run once on mount
+
+    // Start new game when grid size changes (but not on initial mount)
+    useEffect(() => {
+        // Skip the first render since it's handled by the load state effect
+        if (initialLoadAttempted.current) {
+            startGame();
+        }
+        initialLoadAttempted.current = true;
     }, [gridSize]);
+
+    const isGameComplete = (cards: CardType[]) => {
+        if (cards.length > 0) {
+            for (const card of cards) {
+                if (!card.matched) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     // Check if game is complete
     useEffect(() => {
-        if (matches === cards.length / 2 && cards.length > 0) {
+        if (isGameComplete(cards)) {
             setGameComplete(true);
             // Save when game is complete
             saveGameState(cards, moves, matches, gridSize, gameComplete);
@@ -48,6 +87,7 @@ const MemoryGame: React.FC = () => {
     // Handle loading saved game
     const handleLoadGame = () => {
         const gameState = loadGameState();
+        console.log('Loaded saved game state:', gameState);
 
         if (!gameState) {
             alert('No saved game found!');
