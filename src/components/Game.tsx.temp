@@ -28,7 +28,7 @@ const Game: React.FC = () => {
         position: { x: number, y: number },
         targetPosition: { x: number, y: number }
     } | null>(null);
-
+    
     const inventoryRef = useRef<HTMLDivElement>(null);
 
     // Check for saved game on initial mount only
@@ -39,7 +39,7 @@ const Game: React.FC = () => {
         const savedState = loadGameState();
         console.log('Checking for saved game state:', savedState ? 'Found' : 'None');
         setHasSavedGame(savedState !== null);
-
+        
         // Load saved inventory if it exists
         const savedInventory = localStorage.getItem('inventory');
         if (savedInventory) {
@@ -51,7 +51,7 @@ const Game: React.FC = () => {
             }
         }
     }, []);  // Empty dependency array = run once on mount
-
+    
     // Save inventory when it changes
     useEffect(() => {
         if (inventory.length > 0) {
@@ -192,8 +192,8 @@ const Game: React.FC = () => {
             const existingItem = prev.find(item => item.type === type && item.name === name);
             if (existingItem) {
                 // Item already exists, increment count
-                return prev.map(item =>
-                    item.type === type && item.name === name
+                return prev.map(item => 
+                    item.type === type && item.name === name 
                         ? { ...item, count: item.count + 1 }
                         : item
                 );
@@ -227,7 +227,7 @@ const Game: React.FC = () => {
             y: cardRect.top + (cardRect.height / 2)
         };
 
-        // Get inventory position (center of first inventory item or center of inventory)
+        // Get inventory position (center of first inventory item or center of inventory if empty)
         const inventoryRect = inventoryRef.current?.getBoundingClientRect() || { left: 0, top: 0, width: 0, height: 0 };
         const targetPosition = {
             x: inventoryRect.left + (inventoryRect.width / 2),
@@ -283,13 +283,13 @@ const Game: React.FC = () => {
                     )
                 );
                 setMatches(prev => prev + 1);
-
+                
                 // Get the card element to animate from
                 const cardElements = document.querySelectorAll('.card');
-                const matchedCardElement = Array.from(cardElements).find(el =>
+                const matchedCardElement = Array.from(cardElements).find(el => 
                     el.getAttribute('data-card-id') === firstCard.id.toString()
                 ) as HTMLElement;
-
+                
                 if (matchedCardElement) {
                     // Animate item collection
                     setTimeout(() => {
@@ -306,7 +306,7 @@ const Game: React.FC = () => {
                         firstCard.rarity
                     );
                 }
-
+                
                 resetTurn();
             } else {
                 // Flip cards back after a delay
@@ -344,6 +344,10 @@ const Game: React.FC = () => {
                 />
             ) : (
                 <>
+                    <div className="inventory-wrapper" ref={inventoryRef}>
+                        <Inventory items={inventory} />
+                    </div>
+
                     <div className="stats">
                         <div>Moves: {moves}</div>
                         <div>Matches: {matches} / {cards.length / 2}</div>
@@ -367,10 +371,6 @@ const Game: React.FC = () => {
                                 onClick={(cardElement) => handleCardClick(card, cardElement)}
                             />
                         ))}
-                    </div>
-
-                    <div className="inventory-wrapper" ref={inventoryRef}>
-                        <Inventory items={inventory} />
                     </div>
 
                     {/* Animation overlay */}

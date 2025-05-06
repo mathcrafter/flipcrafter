@@ -483,3 +483,181 @@ button:active {
         padding: 1rem;
     }
 }
+
+/* Game container */
+.game-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Inventory Styles */
+.inventory-wrapper {
+    max-width: 800px;
+    margin: 2rem auto;
+    position: relative;
+}
+
+.inventory-container {
+    background-color: white;
+    border: var(--pixel-size) solid var(--border-color);
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    box-shadow: var(--pixel-size) var(--pixel-size) 0 rgba(0, 0, 0, 0.2);
+}
+
+.inventory-title {
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+    text-shadow: var(--pixel-size) var(--pixel-size) 0 rgba(0, 0, 0, 0.1);
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    padding: 0.5rem;
+    min-height: 100px;
+    background-color: #f5f5f5;
+    border: var(--pixel-size) solid #ddd;
+}
+
+.empty-inventory {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 2rem 0;
+}
+
+.inventory-slot {
+    background-color: #e8e8e8;
+    border: var(--pixel-size) solid #ccc;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+}
+
+.inventory-item {
+    position: relative;
+    width: 100%;
+    height: 70%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inventory-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.inventory-count {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 0.8rem;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: var(--pixel-size) solid #333;
+    z-index: 1;
+}
+
+.inventory-name {
+    font-size: 0.7rem;
+    text-align: center;
+    margin-top: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    color: var(--text-color);
+}
+
+.inventory-item[data-rarity="Common"] {
+    background-color: rgba(96, 125, 139, 0.2);
+}
+
+.inventory-item[data-rarity="Uncommon"] {
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+.inventory-item[data-rarity="Rare"] {
+    background-color: rgba(33, 150, 243, 0.2);
+}
+
+.inventory-item[data-rarity="Epic"] {
+    background-color: rgba(156, 39, 176, 0.2);
+}
+
+.inventory-item[data-rarity="Legendary"] {
+    background-color: rgba(255, 152, 0, 0.2);
+}
+
+.inventory-item[data-rarity="Seasonal"] {
+    background-color: rgba(233, 30, 99, 0.2);
+}
+
+/* Item Animation */
+.item-animation {
+    position: fixed;
+    z-index: 1000;
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+
+.animated-item-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.item-animation.animating {
+    animation: flyToInventory 0.6s ease-in-out forwards;
+}
+
+@keyframes flyToInventory {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(calc(var(--target-x) - 50%), calc(var(--target-y) - 50%)) scale(0.5);
+        opacity: 0;
+    }
+}
+
+/* Card transitions for matching */
+.card.matched .card-inner {
+    transform: rotateY(180deg);
+    transition: transform 0.4s;
+}
+
+/* Make matched card images stand out */
+.card.matched .card-back img {
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
+    transform: scale(1.05);
+    transition: transform 0.3s;
+}

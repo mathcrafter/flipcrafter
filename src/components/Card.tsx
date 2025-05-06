@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { getAssetPath } from '@/utils/assetPath';
 
 interface CardProps {
@@ -12,11 +12,12 @@ interface CardProps {
         flipped: boolean;
         rarity: string;
     };
-    onClick: () => void;
+    onClick: (element: HTMLElement) => void;
 }
 
 export const Card: React.FC<CardProps> = ({ card, onClick }) => {
     console.log('Card:', card);
+    const cardRef = useRef<HTMLDivElement>(null);
 
     const getImageSrc = () => {
         if (card.type === 'pickaxe') {
@@ -64,14 +65,18 @@ export const Card: React.FC<CardProps> = ({ card, onClick }) => {
     const handleClick = () => {
         if (!card.matched && !card.flipped) {
             playFlipSound();
-            onClick();
+            if (cardRef.current) {
+                onClick(cardRef.current);
+            }
         }
     };
 
     return (
         <div
+            ref={cardRef}
             className={`card ${card.flipped ? 'flipped' : ''} ${card.matched ? 'matched' : ''}`}
             onClick={handleClick}
+            data-card-id={card.id}
         >
             <div className="card-inner">
                 <div className="card-front">
