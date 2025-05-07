@@ -2,8 +2,9 @@ import { blockStore } from "@/stores/BlockStore";
 import { getAssetPath } from "@/utils/assetPath";
 import { biomeStore } from "@/stores/BiomeStore";
 import { Biome } from "./Biome";
+import { Item } from "./Item";
 
-export interface Block {
+export interface Block extends Item {
     name: string;
     rarity: "Common" | "Uncommon" | "Rare" | "Legendary";
 

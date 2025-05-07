@@ -12,6 +12,7 @@ import Inventory, { InventoryItem } from './Inventory';
 import ItemAnimation from './ItemAnimation';
 import BiomeSelector from './BiomeSelector';
 import { getAssetPath } from '@/utils/assetPath';
+import ItemDetailsModal from './ItemDetailsModal';
 
 const Game: React.FC = () => {
     const [cards, setCards] = useState<CardType[]>([]);
@@ -36,6 +37,7 @@ const Game: React.FC = () => {
         position: { x: number, y: number },
         targetPosition: { x: number, y: number }
     } | null>(null);
+    const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
     const inventoryRef = useRef<HTMLDivElement>(null);
 
@@ -462,6 +464,16 @@ const Game: React.FC = () => {
         setNewlyUnlockedBiome(null);
     };
 
+    // Handle item click in inventory
+    const handleItemClick = (item: InventoryItem) => {
+        setSelectedItem(item);
+    };
+
+    // Handle closing the item details modal
+    const handleCloseItemDetails = () => {
+        setSelectedItem(null);
+    };
+
     return (
         <div className="game-container">
             {showSetupScreen ? (
@@ -505,7 +517,10 @@ const Game: React.FC = () => {
                     </div>
 
                     <div className="inventory-wrapper" ref={inventoryRef}>
-                        <Inventory items={inventory} />
+                        <Inventory
+                            items={inventory}
+                            onItemClick={handleItemClick}
+                        />
                     </div>
 
                     {/* Animation overlay */}
@@ -516,6 +531,14 @@ const Game: React.FC = () => {
                             position={animatingItem.position}
                             targetPosition={animatingItem.targetPosition}
                             onAnimationComplete={handleAnimationComplete}
+                        />
+                    )}
+
+                    {/* Item details modal */}
+                    {selectedItem && (
+                        <ItemDetailsModal
+                            item={selectedItem}
+                            onClose={handleCloseItemDetails}
                         />
                     )}
 

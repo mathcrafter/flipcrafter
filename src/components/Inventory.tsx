@@ -12,9 +12,10 @@ export type InventoryItem = {
 
 interface InventoryProps {
     items: InventoryItem[];
+    onItemClick: (item: InventoryItem) => void;
 }
 
-export const Inventory: React.FC<InventoryProps> = ({ items }) => {
+export const Inventory: React.FC<InventoryProps> = ({ items, onItemClick }) => {
     return (
         <div className="inventory-container">
             <h3 className="inventory-title">Inventory</h3>
@@ -22,8 +23,12 @@ export const Inventory: React.FC<InventoryProps> = ({ items }) => {
                 {items.length === 0 ? (
                     <div className="empty-inventory">Collect items by matching cards!</div>
                 ) : (
-                    items.map((item, index) => (
-                        <div key={`${item.type}-${item.name}`} className="inventory-slot">
+                    items.map((item) => (
+                        <div
+                            key={`${item.type}-${item.name}`}
+                            className="inventory-slot"
+                            onClick={() => onItemClick(item)}
+                        >
                             <div className="inventory-item" data-rarity={item.rarity}>
                                 <img
                                     src={getAssetPath(`/assets/${item.type}s/${item.name}.png`)}
