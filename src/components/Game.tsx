@@ -550,6 +550,46 @@ const Game: React.FC = () => {
                                     <p className="biome-description">
                                         {biomeStore.getItemByName(newlyUnlockedBiome).description}
                                     </p>
+
+                                    {/* Available blocks section */}
+                                    <div className="biome-resources">
+                                        <h3>Available Blocks:</h3>
+                                        <div className="resource-items">
+                                            {biomeStore.getItemByName(newlyUnlockedBiome).availableBlocks.map(blockName => {
+                                                const block = blockStore.getItemByName(blockName);
+                                                return (
+                                                    <div key={`block-${blockName}`} className="resource-item">
+                                                        <img
+                                                            src={getAssetPath(`/assets/blocks/${blockName}.png`)}
+                                                            alt={blockName.replace(/_/g, ' ')}
+                                                            title={`${blockName.replace(/_/g, ' ')} (${block?.rarity || 'Unknown'})`}
+                                                        />
+                                                        <span className="resource-name capitalize">{blockName.replace(/_/g, ' ')}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* Available pickaxes section */}
+                                    <div className="biome-resources">
+                                        <h3>Available Pickaxes:</h3>
+                                        <div className="resource-items">
+                                            {biomeStore.getItemByName(newlyUnlockedBiome).availablePickaxes.map(pickaxeName => {
+                                                const pickaxe = pickaxeStore.getItemByName(pickaxeName);
+                                                return (
+                                                    <div key={`pickaxe-${pickaxeName}`} className="resource-item">
+                                                        <img
+                                                            src={getAssetPath(`/assets/pickaxes/${pickaxeName}.png`)}
+                                                            alt={pickaxeName.replace(/_/g, ' ')}
+                                                            title={`${pickaxeName.replace(/_/g, ' ')} (${pickaxe?.rarity || 'Unknown'})`}
+                                                        />
+                                                        <span className="resource-name capitalize">{pickaxeName.replace(/_/g, ' ')}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="biome-selector-footer">
                                     <button className="confirm-button" onClick={handleAcknowledgeUnlock}>
